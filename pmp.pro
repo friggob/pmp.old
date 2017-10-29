@@ -32,3 +32,7 @@ HEADERS += \
 
 LIBS += \
 	-lreadline
+
+VERSION = 0.2.0
+
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"

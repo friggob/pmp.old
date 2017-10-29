@@ -5,8 +5,23 @@
 #include <QMimeDatabase>
 #include <QDebug>
 
-playList::playList()
-{
+void playList::shuffleList(){
+  QStringList t;
+  QStringList t2;
+  t = pList;
+
+  qsrand(time(NULL));
+
+  while(t.count() > 0){
+	int i;
+	i = qrand() % t.count();
+	t2.append(t[i]);
+	t.removeAt(i);
+  }
+  pList = t2;
+}
+
+playList::playList(){
   randomize = false;
   pIndex = 0;
 }
@@ -58,47 +73,86 @@ int playList::getMaxIndex(){
   return pList.count()-1;
 }
 
+void playList::removeEntry(){
+  pList.removeOne(playList::getEntry());
+  pIndex--;
+}
+
+void playList::incrementIndex(){
+  pIndex++;
+}
+
+QStringList playList::exportList(){
+  return pList;
+}
+
 int playList::createPlayList(QStringList l){
-  int listLen;
-  QMimeType mt;
-  QMimeDatabase md;
+	int listLen;
+	QMimeType mt;
+	QMimeDatabase md;
 
-  foreach(QString p,l){
-	QFileInfo fi(p);
-	if(fi.exists()){
-	  mt = md.mimeTypeForFile(fi.filePath(), QMimeDatabase::MatchContent);
+	foreach(QString p,l){
+		QFileInfo fi(p);
+		if(fi.exists()){
+			mt = md.mimeTypeForFile(fi.filePath(), QMimeDatabase::MatchContent);
 
-	  if(mt.name().startsWith("video/") && !pList.contains(p)){
-		pList << p;
-	  }	else if(mt.inherits("text/plain") && !fi.fileName().endsWith(".sett")){
-		qStdout() << fi.fileName() << " is a text file, assuming playlist!" << endl;
-		QFile fd;
-		fd.setFileName(p);
-		fd.open(QIODevice::ReadOnly);
-		QTextStream ts(&fd);
-		QStringList sl;
+			if(!pList.contains(p) &&
+				 ( mt.name().startsWith("video/") ||
+					 mt.name() == "application/x-matroska" ||
+					 mt.name() == "application/vnd.ms-asf" ||
+					 mt.name() == "application/x-riff" ||
+					 mt.name() == "application/octet-stream" ||
+					 mt.name().startsWith("audio/") )){
 
-		while(!ts.atEnd()){
-		  QString ls = ts.readLine();
-		  QFileInfo fi2(ls);
+				pList << p;
 
-		  if(!l.contains(ls) &&
-			 !l.contains(fi2.absoluteFilePath()) &&
-			 !l.contains(fi2.filePath())){
-			sl.append(ls);
-		  }else{
-			qDebug() << "Found duplicate path!" << ls;
-		  }
+			}	else if(mt.inherits("text/plain") && !fi.fileName().endsWith(".sett")){
+				//qStdout() << fi.fileName() << " is a text file, assuming playlist!" << endl;
+				QFile fd;
+				fd.setFileName(p);
+				fd.open(QIODevice::ReadOnly);
+				QTextStream ts(&fd);
+				QStringList sl;
+
+				while(!ts.atEnd()){
+					QString ls = ts.readLine();
+					QFileInfo fi2(ls);
+
+					if(ls.startsWith("*")){
+						ls.remove(0,1);
+						settFile = ls;
+					}
+					if(!l.contains(ls) &&
+						 !l.contains(fi2.absoluteFilePath()) &&
+						 !l.contains(fi2.filePath())){
+						sl.append(ls);
+					}else{
+						qDebug() << "Found duplicate path!" << ls;
+					}
+				}
+
+				fd.close();
+				createPlayList(sl);
+			}else if(mt.inherits("text/plain") && fi.fileName().endsWith(".sett")){
+				settFile = fi.fileName();
+				settFile.replace(QString(".sett"),"");
+
+				qDebug() << "File with .sett file:" << settFile;
+			}else{
+				if(!mt.inherits("inode/directory"))
+					qDebug() << p << ":" << mt.name();
+			}
 		}
-
-		fd.close();
-		createPlayList(sl);
-	  }else{
-		qDebug() << p << ":" << mt.name();
-	  }
 	}
-  }
 
-  listLen = pList.count();
-  return listLen;
+	if(randomize){
+		shuffleList();
+	}
+	if(settFile.count() > 0){
+		QRegExp r(settFile);
+		pIndex = pList.indexOf(r);
+	}
+
+	listLen = pList.count();
+	return listLen;
 }

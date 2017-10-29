@@ -15,6 +15,8 @@ class playList
 	bool randomize;
 	int pIndex;
 	QStringList pList;
+	void shuffleList();
+	QString settFile;
 
   public:
 	playList();
@@ -25,6 +27,9 @@ class playList
 	void printList(void);
 	int getIndex();
 	int getMaxIndex();
+	void removeEntry();
+	void incrementIndex();
+	QStringList exportList();
 };
 
 #endif // PLAYLIST_H
