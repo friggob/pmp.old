@@ -39,15 +39,13 @@ void playList::printList(){
 	QString num;
 	num = QString::number(pList.indexOf(x));
 	if(pList.indexOf(x) == pIndex){
-	  qStdout() << "*" <<
-				   num.rightJustified(iLen,' ') <<
-				   " : " <<
-				   x.leftJustified(tw-10,' ',true) << endl;
+	  qStdout() << "*";
 	}else{
-	  qStdout() << num.rightJustified(iLen+1,' ') <<
-				   " : " <<
-				   x.leftJustified(tw-10,' ',true) << endl;
+	  qStdout() << " ";
 	}
+	qStdout() << num.rightJustified(iLen,' ') <<
+				 " : " <<
+				 x.leftJustified(tw-10,' ',true) << endl;
   }
   qStdout().flush();
 }
