@@ -150,7 +150,11 @@ int playList::createPlayList(QStringList l){
 	}
 	if(settFile.count() > 0){
 		QRegExp r(settFile);
-		pIndex = pList.indexOf(r);
+		r.setPatternSyntax(QRegExp::FixedString);
+		if((pIndex = pList.indexOf(r)) == -1){
+			pIndex = 0;
+		}
+		settFile = "";
 	}
 
 	listLen = pList.count();

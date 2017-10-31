@@ -2,6 +2,15 @@
 #define MPV_H
 #include <QString>
 #include <QStringList>
+#include <QTextStream>
+
+#ifndef __QSTDOUT
+#define __QSTDOUT
+inline QTextStream& qStdout(){
+	static QTextStream r{stdout};
+	return r;
+}
+#endif // __QSTDOUT
 
 class mpv{
   private:

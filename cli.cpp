@@ -106,8 +106,9 @@ void cli::moveEntry(QString d) {
 	QFileInfo fi(l->getEntry());
 	if(f.rename(d+"/"+fi.fileName())) {
 		qDebug() << "Moved file to" << d+"/";
-		deleteSett();
+		//deleteSett();
 		l->removeEntry();
+		savePlaylist();
 	}
 }
 
@@ -140,7 +141,8 @@ void cli::run() {
 		l->printList();
 	}
 	if(!noSett) {
-		createSett();
+		//createSett();
+		savePlaylist();
 	}
 
 	rl_bind_key('\t',rl_abort);
@@ -174,7 +176,7 @@ void cli::run() {
 			printHelp();
 			continue;
 		} else if(b.startsWith('x')) {
-			deleteSett();
+			//deleteSett();
 			break;
 
 		} else if(b.startsWith('l')) {
@@ -186,9 +188,10 @@ void cli::run() {
 		} else if(re.exactMatch(b)) {
 			if(b.toInt() <= l->getMaxIndex()) {
 				qStdout() << "Setting index to " << b.toInt() << endl;
-				if(!noSett)
-					deleteSett();
-				l->setIndex(b.toInt()-1);
+				l->setIndex(b.toInt());
+				savePlaylist();
+				l->printList();
+				continue;
 			}
 		} else if(b == "i") {
 			p->setcIndex(!p->getcIndex());
@@ -244,14 +247,15 @@ void cli::run() {
 		}
 
 		if(!noSett) {
-			deleteSett();
+			//deleteSett();
 		}
 
 		l->incrementIndex();
 		p->mpvPlay(l->getEntry());
 
 		if(!noSett) {
-			createSett();
+			//createSett();
+			savePlaylist();
 		}
 	}
 	if(!quiet)
