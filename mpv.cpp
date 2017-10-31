@@ -61,9 +61,6 @@ void mpv::mpvPlay(QString entry){
   a = argList;
 
   a += entry;
-	qStdout() << "Playing " << entry << endl;
-	//qDebug() << a;
-	//qDebug() << argList;
 
 	proc->setProcessChannelMode(QProcess::ForwardedChannels);
 

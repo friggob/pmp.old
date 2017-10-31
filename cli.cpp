@@ -188,10 +188,7 @@ void cli::run() {
 		} else if(re.exactMatch(b)) {
 			if(b.toInt() <= l->getMaxIndex()) {
 				qStdout() << "Setting index to " << b.toInt() << endl;
-				l->setIndex(b.toInt());
-				savePlaylist();
-				l->printList();
-				continue;
+				l->setIndex(b.toInt()-1);
 			}
 		} else if(b == "i") {
 			p->setcIndex(!p->getcIndex());
@@ -251,6 +248,7 @@ void cli::run() {
 		}
 
 		l->incrementIndex();
+		qStdout() << "Playing entry #" << l->getIndex() << endl;
 		p->mpvPlay(l->getEntry());
 
 		if(!noSett) {
